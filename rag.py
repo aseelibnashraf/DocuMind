@@ -57,7 +57,7 @@ def build_index(pdf_path):
         ids=[f"{os.path.basename(pdf_path)}-{i}" for i in range(len(chunks))],
         documents=[c["text"] for c in chunks],
         embeddings=embed([c["text"] for c in chunks]),
-        metadatas=[{"page": c["page"]} for c in chunks],   # metadata = extra info we get back later
+        metadatas=[{"page": c["page"], "source": os.path.basename(pdf_path)} for c in chunks],   # metadata = extra info we get back later
     )
     print("Index built.")
 
@@ -69,14 +69,14 @@ def ask(question, k=4):
     hits = collection.query(query_embeddings=[q_vec], n_results=k)
     docs, metas = hits["documents"][0], hits["metadatas"][0]
 
-    context = "\n\n".join(f"[Page {m['page']}] {d}" for d, m in zip(docs, metas))
+    context = "\n\n".join(f"[{m.get('source', 'unknown')}, Page {m['page']}] {d}" for d, m in zip(docs, metas))
     prompt = (
         "Answer the question using ONLY the context below. "
         "The context may use different words than the question (for example 'paid time off' for 'holidays'), so match by meaning. "
-        "Cite the page numbers you used, like (Page 3). "
+        "Cite the file and page you used, like (handbook.pdf, Page 3). "
         "If the question is ambiguous, answer with the closest matching information in the context and briefly say what the documents do not cover. "
         "Only if nothing in the context is relevant, reply exactly: I don't know based on the documents.\n\n"
         f"CONTEXT:\n{context}\n\nQUESTION: {question}"
     )
     answer = client.models.generate_content(model=CHAT_MODEL, contents=prompt).text
-    return answer, sorted({m["page"] for m in metas})
+    return answer, sorted({f"{m.get('source', 'unknown')} p.{m['page']}" for m in metas})

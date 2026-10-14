@@ -29,7 +29,7 @@ def ask_page():
     if request.method == "POST":
         question = request.form["question"]
         answer, pages = ask(question)
-        answer_html = f"<p><b>Q:</b> {escape(question)}</p><p>{escape(answer)}</p><p><i>Pages: {pages}</i></p>"
+        answer_html = f"<p><b>Q:</b> {escape(question)}</p><p>{escape(answer)}</p><p><i>Sources: {", ".join(pages)}</i></p>"
     return f"""
     <h1>DocuMind</h1>
     <form method="post">
