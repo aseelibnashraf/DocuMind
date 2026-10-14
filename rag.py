@@ -53,7 +53,7 @@ def embed(texts):
 def build_index(pdf_path):
     chunks = load_chunks(pdf_path)
     print(f"Split into {len(chunks)} chunks. Embedding...")
-    collection.add(
+    collection.upsert(
         ids=[f"{os.path.basename(pdf_path)}-{i}" for i in range(len(chunks))],
         documents=[c["text"] for c in chunks],
         embeddings=embed([c["text"] for c in chunks]),
