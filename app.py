@@ -1,15 +1,13 @@
 import os
-from flask import Flask, request
+from flask import Flask, request, render_template
 from werkzeug.utils import secure_filename
 from rag import ask, build_index
-from html import escape
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024   # 10 MB upload limit
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-
 
 @app.route("/")
 def home():
@@ -25,19 +23,12 @@ def contact():
 
 @app.route("/ask", methods=["GET", "POST"])
 def ask_page():
-    answer_html = ""
+    question, answer, sources = "", "", []
     if request.method == "POST":
         question = request.form["question"]
-        answer, pages = ask(question)
-        answer_html = f"<p><b>Q:</b> {escape(question)}</p><p>{escape(answer)}</p><p><i>Sources: {", ".join(pages)}</i></p>"
-    return f"""
-    <h1>DocuMind</h1>
-    <form method="post">
-        <input name="question" placeholder="Ask about the handbook" size="50" required>
-        <button>Ask</button>
-    </form>
-    {answer_html}
-    """
+        answer, sources = ask(question)
+    return render_template("ask.html", question=question, answer=answer, sources=sources)
+
 @app.route("/upload", methods=["GET", "POST"])
 def upload_page():
     message = ""
@@ -49,15 +40,8 @@ def upload_page():
             path = os.path.join(UPLOAD_DIR, secure_filename(f.filename))
             f.save(path)
             build_index(path)
-            message = f"Uploaded {escape(f.filename)}. You can now ask questions about it."
-    return f"""
-    <h1>Upload a PDF</h1>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="pdf" accept=".pdf" required>
-        <button>Upload</button>
-    </form>
-    <p>{message}</p>
-    <p><a href="/ask">Go to Ask</a></p>
-    """
+            message = f"Uploaded {f.filename}. You can now ask questions about it."
+    return render_template("upload.html", message=message)
+
 if __name__ == "__main__":
     app.run(debug=True)

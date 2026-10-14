@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+  <title>DocuMind</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    nav a { margin-right: 16px; }
+    input[type=text] { width: 75%; padding: 8px; }
+    button { padding: 8px 16px; }
+    .answer { background: #f3f4f6; padding: 16px; border-radius: 8px; margin-top: 16px; }
+    .sources { color: #555; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <nav><b>DocuMind</b> | <a href="/ask">Ask</a> <a href="/upload">Upload</a></nav>
+  <hr>
+  {% block content %}{% endblock %}
+</body>
+</html>

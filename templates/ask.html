@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Ask a question</h2>
+<form method="post">
+  <input type="text" name="question" placeholder="Ask about your documents" required>
+  <button>Ask</button>
+</form>
+{% if answer %}
+<div class="answer">
+  <p><b>Q:</b> {{ question }}</p>
+  <p>{{ answer }}</p>
+  <p class="sources">Sources: {{ sources | join(", ") }}</p>
+</div>
+{% endif %}
+{% endblock %}
